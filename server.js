@@ -12,6 +12,30 @@ const base = "/";
 async function createServer() {
   const app = express();
 
+  app.get("/api/profile", (_, res) => {
+    res.json({
+      name: "Dongryul Kim",
+      role: "Frontend Engineer",
+      lastLoginAt: new Date(Date.now() - 1000 * 60 * 37).toISOString()
+    });
+  });
+
+  app.get("/api/notices", (_, res) => {
+    res.json([
+      { id: 1, title: "Deploy window: Tue 02:00 UTC", level: "info" },
+      { id: 2, title: "Payment API latency detected", level: "warning" },
+      { id: 3, title: "Q1 release checklist updated", level: "info" }
+    ]);
+  });
+
+  app.get("/api/stats", (_, res) => {
+    res.json({
+      activeUsers: 1240,
+      conversionRate: 3.7,
+      serverTime: new Date().toISOString()
+    });
+  });
+
   let vite;
   if (!isProd) {
     vite = await createViteServer({
@@ -39,8 +63,12 @@ async function createServer() {
         render = (await import("./dist/server/entry-server.js")).render;
       }
 
-      const appHtml = render(url);
-      const html = template.replace("<!--ssr-outlet-->", appHtml);
+      const apiBase = `${req.protocol}://${req.get("host")}`;
+      const { appHtml, initialData } = await render(url, { apiBase });
+      const initialDataScript = `<script>window.__INITIAL_DATA__=${JSON.stringify(initialData).replace(/</g, "\\u003c")}</script>`;
+      const html = template
+        .replace("<!--ssr-outlet-->", appHtml)
+        .replace("<!--initial-data-->", initialDataScript);
 
       res.status(200).set({ "Content-Type": "text/html" }).end(html);
     } catch (error) {
