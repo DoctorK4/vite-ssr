@@ -1,10 +1,12 @@
 import { hydrateRoot } from "react-dom/client";
 import App from "./App";
-import { loadHomePageData } from "./loaders/homePageLoader";
+import { loadPageData } from "./loaders/pageLoader";
 
 async function bootstrap() {
-  const initialData = window.__INITIAL_DATA__ ?? (await loadHomePageData());
-  hydrateRoot(document.getElementById("root"), <App data={initialData} />);
+  const pathname = window.location.pathname;
+  const initialData = window.__INITIAL_DATA__ ?? (await loadPageData(pathname));
+
+  hydrateRoot(document.getElementById("root"), <App route={initialData.route} data={initialData.data} />);
 }
 
 bootstrap();

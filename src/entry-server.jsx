@@ -1,9 +1,9 @@
 import { renderToString } from "react-dom/server";
 import App from "./App";
-import { loadHomePageData } from "./loaders/homePageLoader";
+import { loadPageData } from "./loaders/pageLoader";
 
-export async function render(_, { apiBase }) {
-  const data = await loadHomePageData({ apiBase });
-  const appHtml = renderToString(<App data={data} />);
-  return { appHtml, initialData: data };
+export async function render(url, { apiBase }) {
+  const initialData = await loadPageData(url, { apiBase });
+  const appHtml = renderToString(<App route={initialData.route} data={initialData.data} />);
+  return { appHtml, initialData };
 }

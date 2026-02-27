@@ -36,6 +36,29 @@ async function createServer() {
     });
   });
 
+  app.get("/api/posts/:postId", (req, res) => {
+    const { postId } = req.params;
+    res.json({
+      id: postId,
+      title: `Post ${postId}: SSR + CSR composition`,
+      body: "이 본문은 서버에서 렌더링되는 데이터입니다."
+    });
+  });
+
+  app.get("/api/posts/:postId/comments", (req, res) => {
+    const { postId } = req.params;
+    res.json([
+      { id: `${postId}-c1`, author: "alice", text: "SSR comments are indexed in source." },
+      { id: `${postId}-c2`, author: "bob", text: "Hydration keeps this markup interactive." }
+    ]);
+  });
+
+  app.get("/api/posts/:postId/reactions", (req, res) => {
+    const { postId } = req.params;
+    const seed = Number.parseInt(postId, 10) || 7;
+    res.json({ likes: 100 + (seed % 17) });
+  });
+
   let vite;
   if (!isProd) {
     vite = await createViteServer({
@@ -50,7 +73,6 @@ async function createServer() {
 
   app.use("*", async (req, res) => {
     try {
-      const url = req.originalUrl.replace(base, "");
       let template;
       let render;
 
@@ -64,13 +86,15 @@ async function createServer() {
       }
 
       const apiBase = `${req.protocol}://${req.get("host")}`;
-      const { appHtml, initialData } = await render(url, { apiBase });
+      const pathname = new URL(req.originalUrl, apiBase).pathname;
+      const { appHtml, initialData } = await render(pathname, { apiBase });
       const initialDataScript = `<script>window.__INITIAL_DATA__=${JSON.stringify(initialData).replace(/</g, "\\u003c")}</script>`;
       const html = template
         .replace("<!--ssr-outlet-->", appHtml)
         .replace("<!--initial-data-->", initialDataScript);
 
-      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+      const statusCode = initialData.route.name === "not-found" ? 404 : 200;
+      res.status(statusCode).set({ "Content-Type": "text/html" }).end(html);
     } catch (error) {
       if (vite) {
         vite.ssrFixStacktrace(error);
