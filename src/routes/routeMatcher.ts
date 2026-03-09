@@ -1,4 +1,6 @@
-export function matchRoute(pathname) {
+import type { AppRoute } from "../types";
+
+export function matchRoute(pathname: string): AppRoute {
   if (pathname === "/") {
     return { name: "home", params: {} };
   }

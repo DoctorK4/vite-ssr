@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
 
-export default function PostReactionsCsr({ postId }) {
-  const [state, setState] = useState({ status: "loading", likes: 0 });
+type ReactionsState =
+  | { status: "loading"; likes: number }
+  | { status: "ready"; likes: number }
+  | { status: "error"; likes: number };
+
+interface PostReactionsCsrProps {
+  postId: string;
+}
+
+interface ReactionsResponse {
+  likes: number;
+}
+
+export default function PostReactionsCsr({ postId }: PostReactionsCsrProps) {
+  const [state, setState] = useState<ReactionsState>({ status: "loading", likes: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -9,7 +22,7 @@ export default function PostReactionsCsr({ postId }) {
     async function loadReactions() {
       try {
         const response = await fetch(`/api/posts/${postId}/reactions`);
-        const json = await response.json();
+        const json = (await response.json()) as ReactionsResponse;
         if (!cancelled) {
           setState({ status: "ready", likes: json.likes });
         }

@@ -73,20 +73,20 @@ async function createServer() {
 
   app.use("*", async (req, res) => {
     try {
+      const apiBase = `${req.protocol}://${req.get("host")}`;
+      const pathname = new URL(req.originalUrl, apiBase).pathname;
       let template;
       let render;
 
       if (!isProd) {
         template = await fs.readFile(path.resolve(__dirname, "index.html"), "utf-8");
-        template = await vite.transformIndexHtml(url, template);
-        render = (await vite.ssrLoadModule("/src/entry-server.jsx")).render;
+        template = await vite.transformIndexHtml(pathname, template);
+        render = (await vite.ssrLoadModule("/src/entry-server.tsx")).render;
       } else {
         template = await fs.readFile(path.resolve(__dirname, "dist/client/index.html"), "utf-8");
         render = (await import("./dist/server/entry-server.js")).render;
       }
 
-      const apiBase = `${req.protocol}://${req.get("host")}`;
-      const pathname = new URL(req.originalUrl, apiBase).pathname;
       const { appHtml, initialData } = await render(pathname, { apiBase });
       const initialDataScript = `<script>window.__INITIAL_DATA__=${JSON.stringify(initialData).replace(/</g, "\\u003c")}</script>`;
       const html = template

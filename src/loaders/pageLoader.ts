@@ -1,8 +1,9 @@
 import { loadHomePageData } from "./homePageLoader";
 import { loadPostPageData } from "./postPageLoader";
 import { matchRoute } from "../routes/routeMatcher";
+import type { ApiRequestOptions, InitialDataEnvelope } from "../types";
 
-export async function loadPageData(pathname, options) {
+export async function loadPageData(pathname: string, options?: ApiRequestOptions): Promise<InitialDataEnvelope> {
   const route = matchRoute(pathname);
 
   if (route.name === "home") {
