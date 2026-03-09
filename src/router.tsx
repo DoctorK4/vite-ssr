@@ -1,17 +1,9 @@
 import { createBrowserHistory, createMemoryHistory } from "@tanstack/history";
 import { Outlet, createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
+import NotFoundPage from "./components/NotFound";
 import HomePage from "./pages/HomePage";
 import PostPage from "./pages/PostPage";
 
-function NotFoundPage() {
-  return (
-    <>
-      <h1>404</h1>
-      <p>Route not found</p>
-      <a href="/">홈으로</a>
-    </>
-  );
-}
 
 function RootLayout() {
   return (
