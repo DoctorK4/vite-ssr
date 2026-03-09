@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { RouterProvider } from "@tanstack/react-router";
 import { InitialDataProvider } from "./initialDataContext";
-import { loadPageData } from "./loaders/pageLoader";
+import { loadInitialData } from "./routes/manifest";
 import { createAppRouter } from "./router";
 import type { InitialDataEnvelope } from "./types";
 
@@ -10,7 +10,7 @@ interface RenderOptions {
 }
 
 export async function render(url: string, { apiBase }: RenderOptions): Promise<{ appHtml: string; initialData: InitialDataEnvelope }> {
-  const initialData = await loadPageData(url, { apiBase });
+  const initialData = await loadInitialData(url, { apiBase });
   const router = createAppRouter({ url, isServer: true });
   await router.load();
   const appHtml = renderToString(

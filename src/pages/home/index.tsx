@@ -1,8 +1,7 @@
-import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { loadHomePageData } from "../loaders/homePageLoader";
-import { useInitialData } from "../initialDataContext";
-import type { HomePageData, InitialDataEnvelope } from "../types";
+import { useInitialData } from "../../initialDataContext";
+import type { HomePageData, InitialDataEnvelope } from "../../types";
+import { loadHomePageData } from "./loader";
 
 function pickInitialHomeData(initialData: InitialDataEnvelope | null): HomePageData | null {
   return initialData?.route?.name === "home" ? (initialData.data as HomePageData) : null;
@@ -46,9 +45,7 @@ export default function HomePage() {
       <h1>Vite + React SSR + TanStack Router</h1>
       <p>홈 페이지는 다중 API를 SSR에서 병렬 로딩합니다.</p>
       <p>
-        <Link to="/posts/$postId" params={{ postId: "42" }}>
-          동적 라우트 예시 보기: /posts/42
-        </Link>
+        <a href="/posts/42">동적 라우트 예시 보기: /posts/42</a>
       </p>
       <hr />
       <h2>Profile Loader</h2>

@@ -1,6 +1,6 @@
-import { fetchPost } from "../api/postApi";
-import { fetchPostComments } from "../api/postCommentsApi";
-import type { ApiRequestOptions, PostPageData } from "../types";
+import { fetchPost } from "../../api/postApi";
+import { fetchPostComments } from "../../api/postCommentsApi";
+import type { ApiRequestOptions, PostPageData } from "../../types";
 
 interface PostPageLoaderOptions extends ApiRequestOptions {
   postId: string;

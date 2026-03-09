@@ -69,3 +69,7 @@ export interface ApiRequestOptions {
   apiBase?: string;
   fetchImpl?: typeof fetch;
 }
+
+export interface RouteLoaderContext extends ApiRequestOptions {
+  pathname: string;
+}

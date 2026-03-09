@@ -1,8 +1,8 @@
 import { createBrowserHistory, createMemoryHistory } from "@tanstack/history";
-import { Outlet, createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
+import { Outlet, createRootRoute, createRouter } from "@tanstack/react-router";
 import NotFoundPage from "./components/NotFound";
-import HomePage from "./pages/HomePage";
-import PostPage from "./pages/PostPage";
+import { createHomeRoute } from "./routes/homeRoute";
+import { createPostRoute } from "./routes/postRoute";
 
 
 function RootLayout() {
@@ -18,17 +18,8 @@ const rootRoute = createRootRoute({
   notFoundComponent: NotFoundPage
 });
 
-const homeRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: HomePage
-});
-
-const postRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/posts/$postId",
-  component: PostPage
-});
+const homeRoute = createHomeRoute(rootRoute);
+const postRoute = createPostRoute(rootRoute);
 
 const routeTree = rootRoute.addChildren([homeRoute, postRoute]);
 

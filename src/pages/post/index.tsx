@@ -1,9 +1,8 @@
-import { Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import PostReactionsCsr from "../components/PostReactionsCsr";
-import { useInitialData } from "../initialDataContext";
-import { loadPostPageData } from "../loaders/postPageLoader";
-import type { InitialDataEnvelope, PostPageData } from "../types";
+import PostReactionsCsr from "../../components/PostReactionsCsr";
+import { useInitialData } from "../../initialDataContext";
+import type { InitialDataEnvelope, PostPageData } from "../../types";
+import { loadPostPageData } from "./loader";
 
 function pickInitialPostData(initialData: InitialDataEnvelope | null, postId: string): PostPageData | null {
   if (initialData?.route?.name !== "post") return null;
@@ -12,8 +11,13 @@ function pickInitialPostData(initialData: InitialDataEnvelope | null, postId: st
 }
 
 export default function PostPage() {
-  const { postId } = useParams({ from: "/posts/$postId" });
   const initialData = useInitialData();
+  const postId =
+    initialData?.route?.name === "post"
+      ? initialData.route.params.postId
+      : typeof window !== "undefined"
+        ? window.location.pathname.split("/").pop() ?? ""
+        : "";
   const [data, setData] = useState<PostPageData | null>(() => pickInitialPostData(initialData, postId));
 
   useEffect(() => {
@@ -42,7 +46,7 @@ export default function PostPage() {
     <>
       <h1>Dynamic Route: /posts/{post.id}</h1>
       <p>
-        <Link to="/">홈으로</Link>
+        <a href="/">홈으로</a>
       </p>
       <h2>SSR Section</h2>
       <article>
