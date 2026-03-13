@@ -1,4 +1,4 @@
-import { useInitialData } from "../../initialDataContext";
+import { useInitialData } from "../../context/initialDataContext";
 import type { HomePageData } from "../../types";
 
 export function HomePage() {

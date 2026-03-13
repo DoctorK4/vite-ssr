@@ -1,5 +1,5 @@
 import { useParams } from "@tanstack/react-router";
-import { useInitialData } from "../../initialDataContext";
+import { useInitialData } from "../../context/initialDataContext";
 import type { PostPageData } from "../../types";
 import PostReactionsCsr from "../../components/PostReactionsCsr";
 

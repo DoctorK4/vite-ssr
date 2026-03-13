@@ -1,6 +1,6 @@
 import { hydrateRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
-import { InitialDataProvider } from "./initialDataContext";
+import { InitialDataProvider } from "./context/initialDataContext";
 import { createAppRouter } from "./router";
 
 async function bootstrap() {

@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import type { InitialDataEnvelope } from "./types";
+import type { InitialDataEnvelope } from "../types";
 
 const InitialDataContext = createContext<InitialDataEnvelope | null>(null);
 

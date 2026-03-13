@@ -1,6 +1,6 @@
 import { renderToString } from "react-dom/server";
 import { RouterProvider } from "@tanstack/react-router";
-import { InitialDataProvider } from "./initialDataContext";
+import { InitialDataProvider } from "./context/initialDataContext";
 import { createAppRouter } from "./router";
 import type { InitialDataEnvelope } from "./types";
 import { loadInitialData } from "./routes/manifest";
