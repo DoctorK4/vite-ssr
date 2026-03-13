@@ -1,5 +1,6 @@
 import { renderToString } from "react-dom/server";
 import { RouterProvider } from "@tanstack/react-router";
+import { InitialDataProvider } from "./initialDataContext";
 import { createAppRouter } from "./router";
 import type { InitialDataEnvelope } from "./types";
 import { loadInitialData } from "./routes/manifest";
@@ -17,7 +18,9 @@ export async function render(url: string, { apiBase }: RenderOptions): Promise<{
   await router.load();
 
   const appHtml = renderToString(
-    <RouterProvider router={router} />
+    <InitialDataProvider initialData={initialData}>
+      <RouterProvider router={router} />
+    </InitialDataProvider>
   );
 
   return { appHtml, initialData };
