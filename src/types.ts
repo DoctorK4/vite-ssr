@@ -73,3 +73,8 @@ export interface ApiRequestOptions {
 export interface RouteLoaderContext extends ApiRequestOptions {
   pathname: string;
 }
+
+export type InitialDataResolver = (
+  pathname: string,
+  context: Omit<RouteLoaderContext, "pathname">
+) => Promise<InitialDataEnvelope | null>;

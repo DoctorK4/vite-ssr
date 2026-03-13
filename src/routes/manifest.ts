@@ -1,12 +1,12 @@
 import type { InitialDataEnvelope, NotFoundRoute, RouteLoaderContext } from "../types";
-import { homeRouteInfo } from "./homeRoute";
-import { postRouteInfo } from "./postRoute";
+import { resolveInitialData as resolveHomeInitialData } from "./index";
+import { resolveInitialData as resolvePostInitialData } from "./posts.$postId";
 
-const routeInfos = [homeRouteInfo, postRouteInfo] as const;
+const routeResolvers = [resolveHomeInitialData, resolvePostInitialData] as const;
 
 export async function loadInitialData(pathname: string, context: Omit<RouteLoaderContext, "pathname">): Promise<InitialDataEnvelope> {
-  for (const routeInfo of routeInfos) {
-    const resolved = await routeInfo.resolve(pathname, context);
+  for (const resolveInitialData of routeResolvers) {
+    const resolved = await resolveInitialData(pathname, context);
     if (resolved) {
       return resolved;
     }
