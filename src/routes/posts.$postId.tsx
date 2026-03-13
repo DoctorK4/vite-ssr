@@ -5,9 +5,11 @@ import { useInitialData } from "../initialDataContext";
 import type { InitialDataEnvelope, InitialDataResolver, PostPageData } from "../types";
 import { loadPostPageData } from "../pages/post/loader";
 
-export const Route = (createFileRoute as any)("/posts/$postId" as any)({
-  component: PostRouteComponent
-});
+export const Route = createFileRoute("/posts/$postId")(
+  {
+    component: PostRouteComponent
+  }
+);
 
 export const resolveInitialData: InitialDataResolver = async (pathname, context) => {
   const match = pathname.match(/^\/posts\/([^/]+)$/);

@@ -4,9 +4,11 @@ import { useInitialData } from "../initialDataContext";
 import type { HomePageData, InitialDataEnvelope, InitialDataResolver } from "../types";
 import { loadHomePageData } from "../pages/home/loader";
 
-export const Route = (createFileRoute as any)("/" as any)({
-  component: IndexRouteComponent
-});
+export const Route = createFileRoute("/")(
+  {
+    component: IndexRouteComponent
+  }
+);
 
 export const resolveInitialData: InitialDataResolver = async (pathname, context) => {
   if (pathname !== "/") return null;
