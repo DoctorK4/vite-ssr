@@ -1,15 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useInitialData } from "../initialDataContext";
+import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import type { HomePageData, InitialDataEnvelope, InitialDataResolver } from "../types";
 import { loadHomePageData } from "../pages/home/loader";
 
-export const Route = createFileRoute("/")(
-  {
-    component: IndexRouteComponent
-  }
-);
-
+// SSR: Server-side data loading
 export const resolveInitialData: InitialDataResolver = async (pathname, context) => {
   if (pathname !== "/") return null;
 
@@ -18,45 +11,26 @@ export const resolveInitialData: InitialDataResolver = async (pathname, context)
   return { route, data };
 };
 
-function pickInitialHomeData(initialData: InitialDataEnvelope | null): HomePageData | null {
-  return initialData?.route.name === "home" ? (initialData.data as HomePageData) : null;
-}
-
-function buildFallbackHomeData(): HomePageData {
-  return {
-    profile: { name: "-", role: "-", lastLoginAt: "-" },
-    notices: [],
-    stats: { activeUsers: 0, conversionRate: 0, serverTime: "-" }
-  };
-}
+// CSR: Client-side route loader
+export const Route = createFileRoute("/")(
+  {
+    loader: async () => {
+      try {
+        return await loadHomePageData();
+      } catch {
+        return {
+          profile: { name: "-", role: "-", lastLoginAt: "-" },
+          notices: [],
+          stats: { activeUsers: 0, conversionRate: 0, serverTime: "-" }
+        } as HomePageData;
+      }
+    },
+    component: IndexRouteComponent
+  }
+);
 
 function IndexRouteComponent() {
-  const initialData = useInitialData();
-  const [data, setData] = useState<HomePageData | null>(() => pickInitialHomeData(initialData));
-
-  useEffect(() => {
-    if (data) return;
-
-    let cancelled = false;
-
-    loadHomePageData()
-      .then((next) => {
-        if (!cancelled) {
-          setData(next);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setData(buildFallbackHomeData());
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [data]);
-
-  const view = data ?? buildFallbackHomeData();
+  const data = useLoaderData({ from: "/" });
 
   return (
     <>
@@ -68,18 +42,18 @@ function IndexRouteComponent() {
       <hr />
       <h2>Profile Loader</h2>
       <p>
-        <strong>name:</strong> {view.profile.name}
+        <strong>name:</strong> {data.profile.name}
       </p>
       <p>
-        <strong>role:</strong> {view.profile.role}
+        <strong>role:</strong> {data.profile.role}
       </p>
       <p>
-        <strong>lastLoginAt:</strong> {view.profile.lastLoginAt}
+        <strong>lastLoginAt:</strong> {data.profile.lastLoginAt}
       </p>
       <hr />
       <h2>Notices Loader</h2>
       <ul>
-        {view.notices.map((notice) => (
+        {data.notices.map((notice) => (
           <li key={notice.id}>
             {notice.title} ({notice.level})
           </li>
@@ -88,13 +62,13 @@ function IndexRouteComponent() {
       <hr />
       <h2>Stats Loader</h2>
       <p>
-        <strong>activeUsers:</strong> {view.stats.activeUsers}
+        <strong>activeUsers:</strong> {data.stats.activeUsers}
       </p>
       <p>
-        <strong>conversionRate:</strong> {view.stats.conversionRate}%
+        <strong>conversionRate:</strong> {data.stats.conversionRate}%
       </p>
       <p>
-        <strong>serverTime:</strong> {view.stats.serverTime}
+        <strong>serverTime:</strong> {data.stats.serverTime}
       </p>
     </>
   );

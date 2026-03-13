@@ -1,14 +1,18 @@
 import { hydrateRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { InitialDataProvider } from "./initialDataContext";
-import { loadInitialData } from "./routes/manifest";
 import { createAppRouter } from "./router";
 
 async function bootstrap() {
-  const pathname = window.location.pathname;
-  const initialData = window.__INITIAL_DATA__ ?? (await loadInitialData(pathname, {}));
+  const initialData = window.__INITIAL_DATA__;
+
+  if (!initialData) {
+    throw new Error("Initial data not found in window");
+  }
+
   const router = createAppRouter({ isServer: false });
   await router.load();
+
   const rootElement = document.getElementById("root");
 
   if (!rootElement) {
