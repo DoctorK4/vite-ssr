@@ -3,8 +3,6 @@ import type { HomePageData } from "../../types";
 
 export function HomePage() {
   const initialData = useInitialData();
-  console.log("HomePage: initialData =", initialData);
-
   const data = initialData?.route.name === "home" 
     ? (initialData.data as HomePageData)
     : {

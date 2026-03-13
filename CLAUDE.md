@@ -61,16 +61,34 @@ Routes register data loaders at the page level:
 
 - **Router config**: `src/router.tsx` creates separate history instances (MemoryHistory on server, BrowserHistory on client)
 - **Route files**: File-based structure under `src/routes/` using TanStack Router's `createFileRoute`
-- **Generated routes**: `src/routeTree.gen.ts` is auto-generated from the file structure (do not edit directly)
-- **Root layout**: `src/routes/__root.tsx` wraps all routes with base HTML structure
+  - Each route file defines: `resolveInitialData` (for SSR), `loader` (for CSR), and `Route` with component
+  - `src/routes/__root.tsx` — Root layout
+  - `src/routes/index.tsx` — Home page route definition
+  - `src/routes/posts.$postId.tsx` — Post detail route definition (dynamic)
+- **Generated routes**: `src/routeTree.gen.ts` is auto-generated from the file structure via `@tanstack/router-plugin` (do not edit directly)
+- **Manifest system**: `src/routes/manifest.ts` orchestrates SSR data loading by collecting `resolveInitialData` from all routes
 
-### Components
+### Components & Pages
 
-- **Route components** (`src/routes/*.tsx`) — Handle SSR + CSR rendering:
-  - Accept initial data from context (SSR fallback)
-  - Fetch missing data on client-side in useEffect
-  - Display with fallback values until data loads
-- **Smart async components** (e.g., `PostReactionsCsr.tsx`) — CSR-only sections that don't need SSR data
+**Separation of Concerns:**
+- **Route wiring layer** (`src/routes/*.tsx`) — TanStack Router configuration only:
+  - Define `resolveInitialData` function for SSR data loading
+  - Define `loader` function for CSR navigation data loading
+  - Import and register page components
+
+- **Page implementation layer** (`src/pages/{page}/index.tsx`) — React components only:
+  - Pure presentation logic
+  - Use `useInitialData()` hook for SSR hydration data
+  - Use fallback values if data is missing (CSR navigation)
+  - Example: `src/pages/home/index.tsx`, `src/pages/post/index.tsx`
+
+- **Page data loaders** (`src/pages/{page}/loader.ts`) — Shared data loading logic:
+  - Used by both SSR (`resolveInitialData`) and CSR (`loader`)
+  - Example: `src/pages/home/loader.ts`, `src/pages/post/loader.ts`
+
+- **CSR-only components** (e.g., `src/components/PostReactionsCsr.tsx`) — Never run on server:
+  - Used for interactive/real-time features that don't need SSR
+  - Fetch data on mount with useEffect
 
 ### Types
 
@@ -98,10 +116,13 @@ The server.js file loads from `dist/server/entry-server.js` in production and fr
 
 ## Key Design Patterns
 
-- **Route resolver pattern**: Each route owns its data loading logic; manifest orchestrates discovery
-- **Envelope pattern**: Server wraps data with route metadata so client can determine which page to render without re-fetching
-- **Dual-entry pattern**: Separate server and client entry points allow tree-shaking server-only code from the bundle
-- **Fallback pattern**: Components render optimistically with fallback values; useEffect re-fetches if needed (handles CSR navigation)
+- **Route resolver pattern**: Each route exports `resolveInitialData`; manifest orchestrates SSR discovery and execution
+- **TanStack Router loader pattern**: Each route defines `loader` function for CSR navigation; automatically called by router on route change
+- **Envelope pattern**: Server wraps data with route metadata in `InitialDataEnvelope` (route name + params + data) for type-safe hydration
+- **Dual-entry pattern**: Separate `src/entry-server.tsx` and `src/entry-client.tsx` allow tree-shaking server-only code from bundle
+- **Thin wiring pattern**: `src/routes/` files contain only route configuration; actual component implementation is in `src/pages/`
+- **Context-based hydration**: `InitialDataProvider` wraps app with serialized `window.__INITIAL_DATA__`, available via `useInitialData()` hook
+- **Graceful degradation**: Components use `useInitialData()` for SSR data; fallback to loading state if data missing (CSR navigation)
 
 ## TypeScript Configuration
 
